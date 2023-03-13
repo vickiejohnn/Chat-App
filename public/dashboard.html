@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./dashboard.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <title>Group Chat</title>
+</head>
+
+<body>
+    <div class="nav-bar sticky-top bg-light pt-3 row px-5">
+        <div class="col-3 col-md-1">
+            <div id="displayPic"></div>
+        </div>
+        <div class="col-6 col-md-10">
+            <div id="displayUserName" class=""></div>
+            <p class="text-primary">Online</p>
+        </div>
+        <div class="col-3 col-md-1">
+            <button class="btn btn-light no-border text-danger fw-bold" id="signOutBtn">Sign Out</button>
+        </div>
+    </div>
+    <div class="containerBox shadow mt-3 p-5 bg-secondary">
+        <div id="displayMsg"></div>
+    </div>
+    <div class="send bg-light p-2 d-flex justify-content-cente sticky-bottom px-3">
+        <input id="msgInput" class="form-control no-border border-0 shadow-none w-100" type="text" placeholder="Type message...">
+        <button id="sendMsg" class="ri-send-plane-fill btn no-border border-0 bg-light fs-3"></button>
+    </div>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { onAuthStateChanged, getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRzcK0FgVTxma34K1huGVl0e393S0SWhg",
+            authDomain: "chat-app-1bf7d.firebaseapp.com",
+            projectId: "chat-app-1bf7d",
+            storageBucket: "chat-app-1bf7d.appspot.com",
+            messagingSenderId: "971785753858",
+            appId: "1:971785753858:web:bb64c843286fb892511e1b",
+            databaseURL: "https://chat-app-1bf7d-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getDatabase();
+        let userIndex = 0
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, see docs for a list of available properties
+                // https://firebase.google.com/docs/reference/js/firebase.User
+                // const uid = user.uid;
+                console.log(user)
+                displayPic.innerHTML = `<img style="width: 40px; border-radius: 50px;" src="${user.photoURL}" alt="">`
+                displayUserName.innerHTML = `<h4 class="text-primary-emphasis">${user.displayName}</h4>`
+                // ...
+            } else {
+                window.location.href = 'index.html'
+                // User is signed out
+                // ...
+            }
+        });
+        signOutBtn.addEventListener('click',()=> {
+            signOut(auth).then(() => {
+                alert('Signed Out Successfully!')
+                window.location.href = 'index.html'
+            }).catch((error) => {
+                alert('Unable to Sign Out!')
+            });
+        })
+        document.addEventListener('keydown', () => {
+            if (event.keyCode == 13) {
+                if(msgInput.value != '') {
+                    let dbRef = ref(db,  `users/${userIndex}`)
+                    let date = new Date()
+                    let chat = {
+                        profilePic : auth.currentUser.photoURL,
+                        message : msgInput.value,
+                        time : date.toLocaleTimeString(),
+                        userName : auth.currentUser.displayName
+                    }
+                    set(dbRef,chat)
+                    msgInput.value = ''
+                }
+            }
+        })
+        sendMsg.addEventListener('click', () => {
+            if(msgInput.value != '') {
+                let dbRef = ref(db,  `users/${userIndex}`)
+                let date = new Date()
+                let chat = {
+                    profilePic : auth.currentUser.photoURL,
+                    message : msgInput.value,
+                    time : date.toLocaleTimeString(),
+                    userName : auth.currentUser.displayName
+                }
+                set(dbRef,chat)
+                msgInput.value = ''
+            }
+        })
+        let chatRef = ref(db, 'users')
+        onValue(chatRef,(snapshot)=> {
+            displayMsg.innerHTML = ''
+            let data = snapshot.val()
+            if(data) {
+                userIndex = data.length
+            } else {
+                userIndex = 0
+            }
+            data.map((eachItem)=> {
+                displayMsg.innerHTML += `
+                <div class="bg-primary p-2 mb-2 rounded-4 text-light">
+                    <img src="${eachItem.profilePic}" class="me-2" style="width: 30px; border-radius: 50px;>
+                    <p class="fs-5" style="color: orange;">${eachItem.userName}</p>
+                    <hr>
+                    <p class="fs-4 text-break d-block">${eachItem.message}</p>
+                    <i class="fs-6">${eachItem.time}</i>
+                </div>
+                `
+            })
+        })
+    </script>
+</body>
+
+</html>

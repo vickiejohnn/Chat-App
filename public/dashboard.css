@@ -1,0 +1,53 @@
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    padding: 5px;
+}
+.containerBox {
+    background: url(./Images/41919.jpg) !important;
+    background-repeat: repeat !important;
+    background-size: contain !important;
+}
+.containerBox .send {
+    width: 100px !important;
+    border-radius: .5rem !important;
+    padding:1.5rem 2rem !important;
+    display: flex !important;
+    gap:2rem !important;
+    background-color: white !important;
+}
+.containerBox .send input {
+    font-size: 1.8rem !important;
+    color:black !important;
+    background: none !important;
+    border: none !important;
+    outline: none !important;
+}
+.containerBox .send button {
+    background:none !important;
+    font-size: 2rem !important;
+    cursor: pointer !important;
+    color:blue !important;
+    border: none !important;
+    outline: none !important;
+}
+@media (max-width: 968px) {
+    .containerBox {
+        margin-top: 0 !important;
+        width: 100vw !important;
+    }
+    .containerBox #displayMsg {
+        width: 100vw !important;
+    }
+}
+/* @media (max-width: 768px) {
+    .containerBox {
+        width: 100% !important;
+    }
+    .containerBox #displayMsg {
+        width: 100% !important;
+    }
+} */ 
